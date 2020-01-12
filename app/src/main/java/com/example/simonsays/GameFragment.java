@@ -1,11 +1,11 @@
 package com.example.simonsays;
 
-import android.graphics.Canvas;
 import android.graphics.Color;
 
-import android.graphics.ColorFilter;
-import android.graphics.PixelFormat;
-import android.graphics.drawable.Drawable;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -40,7 +40,11 @@ public class GameFragment extends Fragment {
     private Handler handler;
     private Executor executor;
     private int secuencePosition;
-
+    private SoundPool soundPool;
+    private int sound1;
+    private int sound2;
+    private int sound3;
+    private int sound4;
 
 
     @Nullable
@@ -64,11 +68,36 @@ public class GameFragment extends Fragment {
         tvScore.setText(String.valueOf(turn));
         handler=new Handler();
 
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build();
+
+            soundPool = new SoundPool.Builder()
+                    .setMaxStreams(4)
+                    .setAudioAttributes(audioAttributes)
+                    .build();
+        }else{
+            soundPool=new SoundPool(4, AudioManager.STREAM_MUSIC,0);
+        }
+        sound1=soundPool.load(getContext(),R.raw.beep01,1);
+        sound2=soundPool.load(getContext(),R.raw.beep02,1);
+        sound3=soundPool.load(getContext(),R.raw.beep03,1);
+        sound4=soundPool.load(getContext(),R.raw.beep04,1);
         btGreen.setBackgroundTintList(ContextCompat.getColorStateList(getContext(),R.color.green_button));
         btYellow.setBackgroundTintList(ContextCompat.getColorStateList(getContext(),R.color.yellow_button));
         btRed.setBackgroundTintList(ContextCompat.getColorStateList(getContext(),R.color.red_button));
         btBlue.setBackgroundTintList(ContextCompat.getColorStateList(getContext(),R.color.blue_button));
         executor= Executors.newSingleThreadExecutor();
+        btPlay.setEnabled(false);
+
+        soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+            @Override
+            public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+                btPlay.setEnabled(true);
+            }
+        });
 
         btPlay.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,15 +122,19 @@ public class GameFragment extends Fragment {
             public void onClick(View v) {
                 switch (v.getId()){
                     case R.id.btGreen:
+                        soundPool.play(sound1,1,1,1,0,1);
                         numero=1;
                         break;
                     case R.id.btRed:
+                        soundPool.play(sound2,1,1,1,0,1);
                         numero=2;
                         break;
                     case R.id.btYellow:
+                        soundPool.play(sound3,1,1,1,0,1);
                         numero=3;
                         break;
                     case R.id.btBlue:
+                        soundPool.play(sound4,1,1,1,0,1);
                         numero=4;
                         break;
 
@@ -112,10 +145,12 @@ public class GameFragment extends Fragment {
                         secuencePosition++;
                     }else{
                         playSecuence.add(random.nextInt(4)+1);
+                        turn++;
                         play();
                     }
                 }else{
                     Toast.makeText(getContext(),"fucked",Toast.LENGTH_SHORT).show();
+                    //restartGame();
                 }
             }
         };
@@ -139,15 +174,19 @@ public class GameFragment extends Fragment {
             switch (playSecuence.get(position)){
                 case 1:
                     btGreen.setPressed(true);
+                    soundPool.play(sound1,1,1,1,0,1);
                     break;
                 case 2:
                     btRed.setPressed(true);
+                    soundPool.play(sound2,1,1,1,0,1);
                     break;
                 case 3:
                     btYellow.setPressed(true);
+                    soundPool.play(sound3,1,1,1,0,1);
                     break;
                 case 4:
                     btBlue.setPressed(true);
+                    soundPool.play(sound4,1,1,1,0,1);
                     break;
                 default:
                     Log.i("Cagadas","La has cagado con el random");
@@ -234,6 +273,7 @@ public class GameFragment extends Fragment {
 
 
     private void play(){
+        tvScore.setText(String.valueOf(turn));
         disableButtons();
         BeepAndStateSelected beepAndStateSelected=new BeepAndStateSelected(0);
         WaitAndBeep waitAndBeep=new WaitAndBeep(beepAndStateSelected);
