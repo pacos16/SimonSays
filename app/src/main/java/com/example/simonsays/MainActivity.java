@@ -23,9 +23,6 @@ public class MainActivity extends AppCompatActivity {
         GameFragment gameFragment=new GameFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.flMain,gameFragment).commit();
 
-
-
-
     }
 
     @Override

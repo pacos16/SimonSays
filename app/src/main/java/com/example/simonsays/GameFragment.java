@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,7 +25,6 @@ import androidx.fragment.app.Fragment;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class GameFragment extends Fragment {
@@ -39,6 +39,7 @@ public class GameFragment extends Fragment {
     private Button btPlay;
     private Handler handler;
     private Executor executor;
+    private int secuencePosition;
 
 
 
@@ -82,6 +83,47 @@ public class GameFragment extends Fragment {
 
             }
         });
+
+
+
+        View.OnClickListener onClickListener=new View.OnClickListener() {
+
+            int numero;
+            @Override
+            public void onClick(View v) {
+                switch (v.getId()){
+                    case R.id.btGreen:
+                        numero=1;
+                        break;
+                    case R.id.btRed:
+                        numero=2;
+                        break;
+                    case R.id.btYellow:
+                        numero=3;
+                        break;
+                    case R.id.btBlue:
+                        numero=4;
+                        break;
+
+                }
+
+                if(checkPlay(numero,secuencePosition)){
+                    if(secuencePosition<playSecuence.size()-1){
+                        secuencePosition++;
+                    }else{
+                        playSecuence.add(random.nextInt(4)+1);
+                        play();
+                    }
+                }else{
+                    Toast.makeText(getContext(),"fucked",Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+
+        btBlue.setOnClickListener(onClickListener);
+        btGreen.setOnClickListener(onClickListener);
+        btRed.setOnClickListener(onClickListener);
+        btYellow.setOnClickListener(onClickListener);
 
 
     }
@@ -185,14 +227,14 @@ public class GameFragment extends Fragment {
                 WaitAndBeep waitAndBeep=new WaitAndBeep(beepAndStateSelected);
                 executor.execute(waitAndBeep);
             }else{
-                playSecuence.add(random.nextInt(4)+1);
+                jugadorPlay();
             }
         }
     }
 
 
     private void play(){
-
+        disableButtons();
         BeepAndStateSelected beepAndStateSelected=new BeepAndStateSelected(0);
         WaitAndBeep waitAndBeep=new WaitAndBeep(beepAndStateSelected);
         executor.execute(waitAndBeep);
@@ -200,15 +242,29 @@ public class GameFragment extends Fragment {
     }
 
     public void jugadorPlay(){
+        enableButtons();
+        secuencePosition=0;
+    }
 
+    public boolean checkPlay(int numero,int posicion){
+        if(numero==playSecuence.get(posicion)){
+            return true;
+        }
+        return false;
     }
 
     public void disableButtons(){
-
+        btGreen.setEnabled(false);
+        btRed.setEnabled(false);
+        btYellow.setEnabled(false);
+        btBlue.setEnabled(false);
     }
 
     public void enableButtons(){
-
+        btGreen.setEnabled(true);
+        btRed.setEnabled(true);
+        btYellow.setEnabled(true);
+        btBlue.setEnabled(true);
     }
 
 
