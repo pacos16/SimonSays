@@ -149,8 +149,9 @@ public class GameFragment extends Fragment {
                         play();
                     }
                 }else{
-                    Toast.makeText(getContext(),"fucked",Toast.LENGTH_SHORT).show();
-                    //restartGame();
+                    //puntuaiones
+                    restartGame();
+
                 }
             }
         };
@@ -161,6 +162,14 @@ public class GameFragment extends Fragment {
         btYellow.setOnClickListener(onClickListener);
 
 
+    }
+
+    public void restartGame(){
+        secuencePosition=0;
+        playSecuence=new ArrayList<>();
+        playSecuence.add(random.nextInt(4)+1);
+        turn=1;
+        play();
     }
 
     public class BeepAndStateSelected implements Runnable{
@@ -245,6 +254,7 @@ public class GameFragment extends Fragment {
 
         @Override
         public void run() {
+            soundPool.autoPause();
             switch (playSecuence.get(position)){
                 case 1:
                     btGreen.setPressed(false);

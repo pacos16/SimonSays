@@ -1,5 +1,6 @@
 package com.example.simonsays;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -8,12 +9,17 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
+public class MainActivity extends AppCompatActivity {
+    private ArrayList<Preferencia> preferencias;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         GameFragment gameFragment=new GameFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.flMain,gameFragment).commit();
+        magiaPreferencias();
 
     }
 
@@ -46,4 +53,16 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    public void magiaPreferencias(){
+        SharedPreferences sharedPreferences= getSharedPreferences("preferences",MODE_PRIVATE);
+
+        preferencias=new ArrayList<>();
+        for (int i=0;i<5;i++){
+            String s=sharedPreferences.getString(String.valueOf(i),null);
+            String[] split=s.split(" ");
+            preferencias.add(new Preferencia(i, split[0], Integer.parseInt(split[1])));
+        }
+    }
+
 }
